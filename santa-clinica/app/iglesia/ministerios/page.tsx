@@ -1,13 +1,29 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Users, Music, Book, Heart, Plus, Search, FileText, X, Calendar, User } from 'lucide-react'
+
+import { Users, Music, Book, Heart, Plus, Search, FileText, X, Calendar, User, Bell, Menu } from 'lucide-react'
+
 import { Button } from "@/components/ui/button"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { Input } from "@/components/ui/input"
+
 import { Label } from "@/components/ui/label"
+
 import { Textarea } from "@/components/ui/textarea"
-import { Select } from "@/components/ui/select"
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+// Definir la interfaz para un ministerio
+interface Ministerio {
+  id: number;
+  name: string;
+  leader: string;
+  members: number;
+  description: string;
+}
 
 const ministerios = [
   { id: 1, name: "Alabanza", leader: "Carlos Rodríguez", members: 15, description: "Ministerio de música y adoración" },
@@ -19,7 +35,7 @@ function Header() {
   return (
     <header className="bg-white/80 shadow-sm backdrop-blur-md sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Iglesia Vida Nueva</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Iglesia Monte Moriah</h1>
         <nav className="flex items-center space-x-4">
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
@@ -37,7 +53,7 @@ function Header() {
   )
 }
 
-function NuevoMinisterioModal({ isOpen, onClose }) {
+function NuevoMinisterioModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null
 
   return (
@@ -64,15 +80,19 @@ function NuevoMinisterioModal({ isOpen, onClose }) {
           </div>
           <div>
             <Label htmlFor="meetingDay">Día de Reunión</Label>
-            <Select id="meetingDay">
-              <option value="">Seleccionar día</option>
-              <option value="Lunes">Lunes</option>
-              <option value="Martes">Martes</option>
-              <option value="Miércoles">Miércoles</option>
-              <option value="Jueves">Jueves</option>
-              <option value="Viernes">Viernes</option>
-              <option value="Sábado">Sábado</option>
-              <option value="Domingo">Domingo</option>
+            <Select>
+              <SelectTrigger id="meetingDay">
+                <SelectValue placeholder="Seleccionar día" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Lunes">Lunes</SelectItem>
+                <SelectItem value="Martes">Martes</SelectItem>
+                <SelectItem value="Miércoles">Miércoles</SelectItem>
+                <SelectItem value="Jueves">Jueves</SelectItem>
+                <SelectItem value="Viernes">Viernes</SelectItem>
+                <SelectItem value="Sábado">Sábado</SelectItem>
+                <SelectItem value="Domingo">Domingo</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -89,7 +109,7 @@ function NuevoMinisterioModal({ isOpen, onClose }) {
   )
 }
 
-function DetalleMinisterioModal({ isOpen, onClose, ministerio }) {
+function DetalleMinisterioModal({ isOpen, onClose, ministerio }: { isOpen: boolean; onClose: () => void; ministerio: Ministerio | null }) {
   if (!isOpen || !ministerio) return null
 
   return (
@@ -154,14 +174,14 @@ export default function MinisteriosPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isNuevoMinisterioOpen, setIsNuevoMinisterioOpen] = useState(false)
   const [isDetalleMinisterioOpen, setIsDetalleMinisterioOpen] = useState(false)
-  const [selectedMinisterio, setSelectedMinisterio] = useState(null)
+  const [selectedMinisterio, setSelectedMinisterio] = useState<Ministerio | null>(null)
 
-  const handleOpenDetalleMinisterio = (ministerio) => {
+  const handleOpenDetalleMinisterio = (ministerio: Ministerio) => {
     setSelectedMinisterio(ministerio)
     setIsDetalleMinisterioOpen(true)
   }
 
-  const getMinisterioIcon = (name) => {
+  const getMinisterioIcon = (name: string) => {
     switch (name.toLowerCase()) {
       case 'alabanza':
         return <Music className="h-8 w-8 text-blue-500" />
@@ -175,7 +195,7 @@ export default function MinisteriosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Ministerios de la Iglesia</h1>
@@ -204,9 +224,7 @@ export default function MinisteriosPage() {
                 <CardTitle className="text-xl font-semibold">
                   {ministerio.name}
                 </CardTitle>
-                {getMinisterioIcon(minister
-
-io.name)}
+                {getMinisterioIcon(ministerio.name)}
               </CardHeader>
               <CardContent>
                 <div className="text-sm text-gray-600 space-y-2">

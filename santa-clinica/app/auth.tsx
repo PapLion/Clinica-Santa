@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 
 type FormType = 'login' | 'register'
 
-export default function LoginRegister() {
+export default function LoginRegister({ onLogin }: { onLogin: () => void }) {
   const [activeForm, setActiveForm] = useState<FormType>('login')
   const [loginData, setLoginData] = useState({ email: '', password: '' })
   const [registerData, setRegisterData] = useState({ name: '', email: '', password: '' })
@@ -25,10 +25,17 @@ export default function LoginRegister() {
     setRegisterData({ ...registerData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // Handle form submission here
     console.log(activeForm === 'login' ? loginData : registerData)
+    
+    // Simulating a successful login
+    if (activeForm === 'login') {
+      // Replace this with actual login logic
+      localStorage.setItem('isAuthenticated', 'true')
+      onLogin()
+    }
   }
 
   return (

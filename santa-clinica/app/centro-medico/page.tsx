@@ -1,32 +1,49 @@
+'use client'
+
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, Users, Clipboard, Bell, PieChart, Menu } from 'lucide-react'
+import { DollarSign, CreditCard, PieChart, TrendingUp, Plus, FileText, X, Calendar, User, Bell, Menu, Percent, Users, Clipboard } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useRouter } from 'next/navigation'
 
-const FeatureButton: React.FC<{ icon: React.ReactNode; title: string }> = ({ icon, title }) => (
-  <Button variant="outline" className="w-full justify-start space-x-2 h-auto py-4 px-4 bg-white hover:bg-gray-50">
-    {icon}
-    <span>{title}</span>
-  </Button>
-)
+const FeatureButton: React.FC<{ icon: React.ReactNode; title: string; href: string }> = ({ icon, title, href }) => {
+  const router = useRouter()
+  return (
+    <Button 
+      variant="outline" 
+      className="w-full justify-start space-x-2 h-auto py-4 px-4 bg-white hover:bg-gray-50"
+      onClick={() => router.push(href)}
+    >
+      {icon}
+      <span>{title}</span>
+    </Button>
+  )
+}
 
 export default function CentroMedicoHomeRedesigned() {
+  const router = useRouter()
+
   return (
-    <div className="min-h-screen bg-[url('/medical-background.jpg')] bg-cover bg-center">
+    <div className="min-h-screen bg-cover bg-center">
       <div className="min-h-screen bg-white/90 backdrop-blur-sm">
-        <header className="bg-white/80 shadow-sm backdrop-blur-md sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-semibold text-gray-900">Centro Médico Arévalo</h1>
-            <nav className="flex items-center space-x-4">
-              <Button variant="ghost">
-                <Menu className="h-5 w-5 mr-2" />
-                Menú
-              </Button>
-              <Button variant="ghost">Cerrar Sesión</Button>
-            </nav>
-          </div>
-        </header>
+      <header className="bg-white/80 shadow-sm backdrop-blur-md sticky top-0 z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <h1 className="text-2xl font-semibold text-gray-900">Centro Médico Arévalo</h1>
+        <nav className="flex items-center space-x-4">
+          <Button variant="ghost" size="icon">
+            <Bell className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <User className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost">
+            <Menu className="h-5 w-5 mr-2" />
+            Menú
+          </Button>
+        </nav>
+      </div>
+    </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <motion.section 
@@ -51,22 +68,27 @@ export default function CentroMedicoHomeRedesigned() {
               <FeatureButton 
                 icon={<Calendar className="h-5 w-5 text-blue-600" />}
                 title="Gestión de Citas"
+                href="/centro-medico/citas"
               />
               <FeatureButton 
                 icon={<Users className="h-5 w-5 text-green-600" />}
                 title="Pacientes"
+                href="/centro-medico/pacientes"
               />
               <FeatureButton 
                 icon={<Clipboard className="h-5 w-5 text-yellow-600" />}
                 title="Inventario"
+                href="/centro-medico/inventario"
               />
               <FeatureButton 
                 icon={<Bell className="h-5 w-5 text-red-600" />}
                 title="Notificaciones"
+                href="/centro-medico/notificaciones"
               />
               <FeatureButton 
                 icon={<PieChart className="h-5 w-5 text-purple-600" />}
                 title="Reportes"
+                href="/centro-medico/reportes"
               />
             </motion.div>
 

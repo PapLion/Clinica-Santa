@@ -1,19 +1,20 @@
+'use client'
+
+import React from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export function Navigation() {
+  const pathname = usePathname()
+
+  const isActive = (path: string) => pathname.startsWith(path)
+
   return (
     <nav className="bg-gray-800 text-white p-4">
       <ul className="flex space-x-4">
-        <li><Link href="/centro-medico/citas">Citas</Link></li>
-        <li><Link href="/centro-medico/pacientes">Pacientes</Link></li>
-        <li><Link href="/centro-medico/inventario">Inventario</Link></li>
-        <li><Link href="/centro-medico/notificaciones">Notificaciones</Link></li>
-        <li><Link href="/centro-medico/reportes">Reportes</Link></li>
-        <li><Link href="/iglesia/miembros">Miembros</Link></li>
-        <li><Link href="/iglesia/eventos">Eventos</Link></li>
-        <li><Link href="/iglesia/donaciones-finanzas">Donaciones</Link></li>
-        <li><Link href="/iglesia/ministerios">Ministerios</Link></li>
-        <li><Link href="/iglesia/recursos">Recursos</Link></li>
+        <li><Link href="/" className={isActive('/') ? 'font-bold' : ''}>Inicio</Link></li>
+        <li><Link href="/centro-medico" className={isActive('/centro-medico') ? 'font-bold' : ''}>Centro Médico</Link></li>
+        <li><Link href="/iglesia" className={isActive('/iglesia') ? 'font-bold' : ''}>Iglesia</Link></li>
       </ul>
     </nav>
   )

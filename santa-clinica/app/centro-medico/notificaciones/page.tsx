@@ -1,14 +1,22 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Bell, Calendar, Clock, User, Filter, X } from 'lucide-react'
+import { Bell, Calendar, Clock, User, Filter, X, Menu, Package, Settings } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const notifications = [
+interface Notification {
+  id: number;
+  type: string;
+  message: string;
+  date: string;
+  time: string;
+}
+
+const notifications: Notification[] = [
   { id: 1, type: 'Cita', message: 'Recordatorio: Cita con María López mañana a las 10:00 AM', date: '2024-10-05', time: '09:00' },
   { id: 2, type: 'Inventario', message: 'Stock bajo: Jeringuillas 5ml', date: '2024-10-04', time: '14:30' },
   { id: 3, type: 'Sistema', message: 'Actualización del sistema programada para esta noche', date: '2024-10-03', time: '18:00' },
@@ -37,7 +45,7 @@ function Header() {
   )
 }
 
-function NotificationCard({ notification }) {
+function NotificationCard({ notification }: { notification: Notification }) {
   return (
     <Card className="mb-4">
       <CardContent className="flex items-center p-4">
@@ -78,7 +86,7 @@ export default function NotificacionesPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Notificaciones</h1>

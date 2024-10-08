@@ -1,14 +1,26 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Search, User, Plus, FileText, X, Calendar, Phone, Mail, MapPin } from 'lucide-react'
+import { Search, User, Plus, FileText, X, Calendar, Phone, Mail, MapPin, Bell, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-const patients = [
+interface Patient {
+  id: number;
+  name: string;
+  age: number;
+  lastVisit: string;
+  condition: string;
+  phone?: string; // Añade otras propiedades según sea necesario
+  email?: string;
+  address?: string;
+  medicalHistory?: string;
+}
+
+const patients: Patient[] = [
   { id: 1, name: "María López", age: 35, lastVisit: "2024-09-28", condition: "Hipertensión" },
   { id: 2, name: "Juan Pérez", age: 42, lastVisit: "2024-09-30", condition: "Diabetes Tipo 2" },
   { id: 3, name: "Ana García", age: 28, lastVisit: "2024-10-02", condition: "Asma" },
@@ -36,7 +48,7 @@ function Header() {
   )
 }
 
-function NuevoPacienteModal({ isOpen, onClose }) {
+function NuevoPacienteModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null
 
   return (
@@ -87,7 +99,7 @@ function NuevoPacienteModal({ isOpen, onClose }) {
   )
 }
 
-function DetallePacienteModal({ isOpen, onClose, patient }) {
+function DetallePacienteModal({ isOpen, onClose, patient }: { isOpen: boolean; onClose: () => void; patient: Patient | null }) {
   if (!isOpen || !patient) return null
 
   return (
@@ -151,15 +163,15 @@ export default function PacientesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isNuevoPacienteOpen, setIsNuevoPacienteOpen] = useState(false)
   const [isDetallePacienteOpen, setIsDetallePacienteOpen] = useState(false)
-  const [selectedPatient, setSelectedPatient] = useState(null)
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
 
-  const handleOpenDetallePaciente = (patient) => {
+  const handleOpenDetallePaciente = (patient: Patient) => {
     setSelectedPatient(patient)
     setIsDetallePacienteOpen(true)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Gestión de Pacientes</h1>

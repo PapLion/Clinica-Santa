@@ -1,15 +1,23 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Calendar, Clock, User, Plus, Search, Filter, X, FileText } from 'lucide-react'
+import { Calendar, Clock, User, Plus, Search, Filter, X, FileText, Bell, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-const appointments = [
+interface Appointment {
+  id: number;
+  patient: string;
+  date: string;
+  time: string;
+  reason: string;
+}
+
+const appointments: Appointment[] = [
   { id: 1, patient: "María López", date: "2024-10-05", time: "09:00", reason: "Chequeo anual" },
   { id: 2, patient: "Juan Pérez", date: "2024-10-05", time: "10:30", reason: "Seguimiento" },
   { id: 3, patient: "Ana García", date: "2024-10-05", time: "11:45", reason: "Consulta general" },
@@ -37,7 +45,7 @@ function Header() {
   )
 }
 
-function NuevaCitaModal({ isOpen, onClose }) {
+function NuevaCitaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null
 
   return (
@@ -52,11 +60,15 @@ function NuevaCitaModal({ isOpen, onClose }) {
         <form className="space-y-4">
           <div>
             <Label htmlFor="patient">Paciente</Label>
-            <Select id="patient">
-              <option value="">Seleccionar paciente</option>
-              <option value="1">María López</option>
-              <option value="2">Juan Pérez</option>
-              <option value="3">Ana García</option>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar paciente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">María López</SelectItem>
+                <SelectItem value="2">Juan Pérez</SelectItem>
+                <SelectItem value="3">Ana García</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -81,7 +93,7 @@ function NuevaCitaModal({ isOpen, onClose }) {
   )
 }
 
-function DetalleCitaModal({ isOpen, onClose, appointment }) {
+function DetalleCitaModal({ isOpen, onClose, appointment }: { isOpen: boolean; onClose: () => void; appointment: Appointment | null }) {
   if (!isOpen || !appointment) return null
 
   return (
@@ -124,15 +136,15 @@ export default function CitasPage() {
   const [selectedDate, setSelectedDate] = useState("2024-10-05")
   const [isNuevaCitaOpen, setIsNuevaCitaOpen] = useState(false)
   const [isDetalleCitaOpen, setIsDetalleCitaOpen] = useState(false)
-  const [selectedAppointment, setSelectedAppointment] = useState(null)
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
 
-  const handleOpenDetalleCita = (appointment) => {
+  const handleOpenDetalleCita = (appointment: Appointment) => {
     setSelectedAppointment(appointment)
     setIsDetalleCitaOpen(true)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Gestión de Citas</h1>

@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useState } from 'react'
-import { DollarSign, CreditCard, PieChart, TrendingUp, Plus, FileText, X, Calendar } from 'lucide-react'
+import { DollarSign, CreditCard, PieChart, TrendingUp, Plus, FileText, X, Calendar, User, Bell, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart as RechartsPieChart, Pie, Cell } from 'recharts'
 
@@ -32,7 +32,7 @@ function Header() {
   return (
     <header className="bg-white/80 shadow-sm backdrop-blur-md sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Iglesia Vida Nueva</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Iglesia Monte Moriah</h1>
         <nav className="flex items-center space-x-4">
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
@@ -50,7 +50,7 @@ function Header() {
   )
 }
 
-function NuevaDonacionModal({ isOpen, onClose }) {
+function NuevaDonacionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null
 
   return (
@@ -77,21 +77,29 @@ function NuevaDonacionModal({ isOpen, onClose }) {
           </div>
           <div>
             <Label htmlFor="method">Método de Pago</Label>
-            <Select id="method">
-              <option value="">Seleccionar método</option>
-              <option value="Efectivo">Efectivo</option>
-              <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
-              <option value="Transferencia">Transferencia Bancaria</option>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar método" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Efectivo">Efectivo</SelectItem>
+                <SelectItem value="Tarjeta">Tarjeta de Crédito/Débito</SelectItem>
+                <SelectItem value="Transferencia">Transferencia Bancaria</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div>
             <Label htmlFor="category">Categoría</Label>
-            <Select id="category">
-              <option value="">Seleccionar categoría</option>
-              <option value="Diezmo">Diezmo</option>
-              <option value="Ofrenda">Ofrenda</option>
-              <option value="Misiones">Misiones</option>
-              <option value="Proyectos Especiales">Proyectos Especiales</option>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar categoría" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Diezmo">Diezmo</SelectItem>
+                <SelectItem value="Ofrenda">Ofrenda</SelectItem>
+                <SelectItem value="Misiones">Misiones</SelectItem>
+                <SelectItem value="Proyectos Especiales">Proyectos Especiales</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex justify-end space-x-2">
@@ -108,7 +116,7 @@ export default function DonacionesFinanzasPage() {
   const [isNuevaDonacionOpen, setIsNuevaDonacionOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex justify-between items-center mb-6">
@@ -133,7 +141,7 @@ export default function DonacionesFinanzasPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Donantes Activos</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <User className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">145</div>

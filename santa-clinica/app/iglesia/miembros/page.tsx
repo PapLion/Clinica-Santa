@@ -1,25 +1,37 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Search, User, Plus, FileText, X, Calendar, Phone, Mail, MapPin, Heart } from 'lucide-react'
+import { Search, User, Plus, FileText, X, Calendar, Phone, Mail, MapPin, Heart, Bell, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-const members = [
-  { id: 1, name: "María López", age: 35, joinDate: "2020-05-15", ministry: "Coro" },
-  { id: 2, name: "Juan Pérez", age: 42, joinDate: "2018-03-10", ministry: "Escuela Dominical" },
-  { id: 3, name: "Ana García", age: 28, joinDate: "2021-09-22", ministry: "Jóvenes" },
+interface Member {
+  id: number;
+  name: string;
+  age: number;
+  joinDate: string;
+  ministry: string;
+  address: string;
+  phone: number;
+  email: string;
+  notes: string;
+}
+
+const members: Member[] = [
+  { id: 1, name: "María López", age: 35, joinDate: "2020-05-15", ministry: "Coro", phone: 997541234, address: "avenida san juan del lurigancho", email: "pepito@gmail.com", notes: "es inteligente" },
+  { id: 2, name: "Juan Pérez", age: 42, joinDate: "2018-03-10", ministry: "Escuela Dominical", phone: 997541234, address: "avenida san juan del lurigancho", email: "pepito@gmail.com", notes: "es inteligente"  },
+  { id: 3, name: "Ana García", age: 28, joinDate: "2021-09-22", ministry: "Jóvenes", phone: 997541234, address: "avenida san juan del lurigancho", email: "pepito@gmail.com", notes: "es inteligente" },
 ]
 
 function Header() {
   return (
     <header className="bg-white/80 shadow-sm backdrop-blur-md sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Iglesia Vida Nueva</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Iglesia Monte Moriah</h1>
         <nav className="flex items-center space-x-4">
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
@@ -37,7 +49,7 @@ function Header() {
   )
 }
 
-function NuevoMiembroModal({ isOpen, onClose }) {
+function NuevoMiembroModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null
 
   return (
@@ -76,12 +88,16 @@ function NuevoMiembroModal({ isOpen, onClose }) {
           </div>
           <div>
             <Label htmlFor="ministry">Ministerio</Label>
-            <Select id="ministry">
-              <option value="">Seleccionar ministerio</option>
-              <option value="Coro">Coro</option>
-              <option value="Escuela Dominical">Escuela Dominical</option>
-              <option value="Jóvenes">Jóvenes</option>
-              <option value="Misiones">Misiones</option>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar ministerio" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Coro">Coro</SelectItem>
+                <SelectItem value="Escuela Dominical">Escuela Dominical</SelectItem>
+                <SelectItem value="Jóvenes">Jóvenes</SelectItem>
+                <SelectItem value="Misiones">Misiones</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -98,7 +114,7 @@ function NuevoMiembroModal({ isOpen, onClose }) {
   )
 }
 
-function DetalleMiembroModal({ isOpen, onClose, member }) {
+function DetalleMiembroModal({ isOpen, onClose, member }: { isOpen: boolean; onClose: () => void; member: Member | null }) {
   if (!isOpen || !member) return null
 
   return (
@@ -167,15 +183,15 @@ export default function MiembrosPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isNuevoMiembroOpen, setIsNuevoMiembroOpen] = useState(false)
   const [isDetalleMiembroOpen, setIsDetalleMiembroOpen] = useState(false)
-  const [selectedMember, setSelectedMember] = useState(null)
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null)
 
-  const handleOpenDetalleMiembro = (member) => {
+  const handleOpenDetalleMiembro = (member: Member) => {
     setSelectedMember(member)
     setIsDetalleMiembroOpen(true)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Gestión de Miembros</h1>

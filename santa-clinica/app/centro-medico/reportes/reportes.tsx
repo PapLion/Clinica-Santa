@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { BarChart, Calendar, Download, FileText, PieChart, User } from 'lucide-react'
+import { DollarSign, CreditCard, PieChart, TrendingUp, Plus, FileText, X, Calendar, User, Bell, Menu, Percent, Download } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select } from "@/components/ui/select"
@@ -53,7 +53,7 @@ export default function ReportesPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('mes')
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex justify-between items-center mb-6">

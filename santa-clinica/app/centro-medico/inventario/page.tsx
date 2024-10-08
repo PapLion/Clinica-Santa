@@ -1,15 +1,23 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Search, Package, AlertTriangle, Plus, Edit, X } from 'lucide-react'
+import { Search, Package, AlertTriangle, Plus, Edit, X, User, Bell, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select } from "@/components/ui/select"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 
-const inventory = [
+interface InventoryItem {
+  id: number;
+  name: string;
+  quantity: number;
+  unit: string;
+  status: string;
+}
+
+const inventory: InventoryItem[] = [
   { id: 1, name: "Paracetamol 500mg", quantity: 500, unit: "tabletas", status: "Normal" },
   { id: 2, name: "Jeringuillas 5ml", quantity: 100, unit: "unidades", status: "Bajo" },
   { id: 3, name: "Vendas elásticas", quantity: 50, unit: "rollos", status: "Normal" },
@@ -38,7 +46,7 @@ function Header() {
   )
 }
 
-function NuevoItemModal({ isOpen, onClose }) {
+function NuevoItemModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null
 
   return (
@@ -65,10 +73,15 @@ function NuevoItemModal({ isOpen, onClose }) {
           </div>
           <div>
             <Label htmlFor="status">Estado</Label>
-            <Select id="status">
-              <option value="Normal">Normal</option>
-              <option value="Bajo">Bajo</option>
-              <option value="Crítico">Crítico</option>
+            <Select defaultValue="Normal">
+              <SelectTrigger id="status">
+                <SelectValue placeholder="Seleccionar estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Normal">Normal</SelectItem>
+                <SelectItem value="Bajo">Bajo</SelectItem>
+                <SelectItem value="Crítico">Crítico</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex justify-end space-x-2">
@@ -81,7 +94,7 @@ function NuevoItemModal({ isOpen, onClose }) {
   )
 }
 
-function EditarItemModal({ isOpen, onClose, item }) {
+function EditarItemModal({ isOpen, onClose, item }: { isOpen: boolean; onClose: () => void; item: InventoryItem | null }) {
   if (!isOpen || !item) return null
 
   return (
@@ -108,10 +121,15 @@ function EditarItemModal({ isOpen, onClose, item }) {
           </div>
           <div>
             <Label htmlFor="status">Estado</Label>
-            <Select id="status" defaultValue={item.status}>
-              <option value="Normal">Normal</option>
-              <option value="Bajo">Bajo</option>
-              <option value="Crítico">Crítico</option>
+            <Select defaultValue={item.status}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Normal">Normal</SelectItem>
+                <SelectItem value="Bajo">Bajo</SelectItem>
+                <SelectItem value="Crítico">Crítico</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex justify-end space-x-2">
@@ -128,19 +146,19 @@ export default function InventarioPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isNuevoItemOpen, setIsNuevoItemOpen] = useState(false)
   const [isEditarItemOpen, setIsEditarItemOpen] = useState(false)
-  const [selectedItem, setSelectedItem] = useState(null)
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null)
 
-  const handleOpenEditarItem = (item) => {
+  const handleOpenEditarItem = (item: InventoryItem) => {
     setSelectedItem(item)
     setIsEditarItemOpen(true)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">Gestión de Inventario</h1>
-        
+
         <div className="flex justify-between items-center mb-6">
           <div className="relative w-64">
             <Input
@@ -157,7 +175,7 @@ export default function InventarioPage() {
             Nuevo Item
           </Button>
         </div>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Lista de Inventario</CardTitle>
@@ -169,9 +187,7 @@ export default function InventarioPage() {
                   <TableHead>Nombre</TableHead>
                   <TableHead>Cantidad</TableHead>
                   <TableHead>Unidad</TableHead>
-                  <TableHead>Esta
-
-do</TableHead>
+                  <TableHead>Estado</TableHead>
                   <TableHead>Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -185,7 +201,7 @@ do</TableHead>
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold
                         ${item.status === 'Normal' ? 'bg-green-100 text-green-800' :
                           item.status === 'Bajo' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'}`}>
+                            'bg-red-100 text-red-800'}`}>
                         {item.status}
                       </span>
                     </TableCell>
@@ -201,7 +217,7 @@ do</TableHead>
             </Table>
           </CardContent>
         </Card>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           <Card>
             <CardHeader>
@@ -229,11 +245,11 @@ do</TableHead>
           </Card>
         </div>
       </main>
-      
+
       <NuevoItemModal isOpen={isNuevoItemOpen} onClose={() => setIsNuevoItemOpen(false)} />
-      <EditarItemModal 
-        isOpen={isEditarItemOpen} 
-        onClose={() => setIsEditarItemOpen(false)} 
+      <EditarItemModal
+        isOpen={isEditarItemOpen}
+        onClose={() => setIsEditarItemOpen(false)}
         item={selectedItem}
       />
     </div>
