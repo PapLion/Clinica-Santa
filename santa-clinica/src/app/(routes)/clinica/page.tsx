@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Pill, PlusCircle, ArrowLeft, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { Pill, PlusCircle, ArrowLeft, CheckCircle, XCircle, AlertCircle, Trash2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/components/ui/use-toast"
 
 interface InventoryItem {
   id: number;
@@ -18,24 +19,99 @@ interface InventoryItem {
 }
 
 export default function ClinicaPage() {
-  const [medicamentos, setMedicamentos] = useState<InventoryItem[]>([
-    { id: 1, name: 'Paracetamol', quantity: 100, unit: 'tabletas', status: 'En stock' },
-    { id: 2, name: 'Ibuprofeno', quantity: 50, unit: 'tabletas', status: 'Bajo stock' },
-  ])
+  const { toast } = useToast()
+  const [medicamentos, setMedicamentos] = useState<InventoryItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [nuevoMedicamento, setNuevoMedicamento] = useState({ name: '', quantity: '', unit: '', status: '' })
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
 
-  const agregarMedicamento = () => {
+  // Fetch medications on component mount
+  useEffect(() => {
+    fetchMedicamentos()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const fetchMedicamentos = async () => {
+    try {
+      const response = await fetch('/api/medications')
+      if (!response.ok) throw new Error('Error al cargar medicamentos')
+      const data = await response.json()
+      setMedicamentos(data)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los medicamentos",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const agregarMedicamento = async () => {
     if (nuevoMedicamento.name && nuevoMedicamento.quantity && nuevoMedicamento.unit && nuevoMedicamento.status) {
-      setMedicamentos([...medicamentos, { 
-        id: medicamentos.length + 1, 
-        name: nuevoMedicamento.name, 
-        quantity: parseInt(nuevoMedicamento.quantity), 
-        unit: nuevoMedicamento.unit,
-        status: nuevoMedicamento.status
-      }])
-      setNuevoMedicamento({ name: '', quantity: '', unit: '', status: '' })
-      setMostrarFormulario(false)
+      try {
+        const response = await fetch('/api/medications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: nuevoMedicamento.name,
+            quantity: parseInt(nuevoMedicamento.quantity),
+            unit: nuevoMedicamento.unit,
+            status: nuevoMedicamento.status
+          }),
+        })
+
+        if (!response.ok) throw new Error('Error al agregar medicamento')
+
+        const data = await response.json()
+        setMedicamentos([...medicamentos, {
+          id: data.id,
+          name: nuevoMedicamento.name,
+          quantity: parseInt(nuevoMedicamento.quantity),
+          unit: nuevoMedicamento.unit,
+          status: nuevoMedicamento.status
+        }])
+
+        setNuevoMedicamento({ name: '', quantity: '', unit: '', status: '' })
+        setMostrarFormulario(false)
+        
+        toast({
+          title: "Éxito",
+          description: "Medicamento agregado correctamente",
+        })
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "No se pudo agregar el medicamento",
+          variant: "destructive"
+        })
+      }
+    }
+  }
+
+  const eliminarMedicamento = async (id: number) => {
+    try {
+      const response = await fetch(`/api/medications?id=${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Error al eliminar medicamento')
+
+      setMedicamentos(medicamentos.filter(med => med.id !== id))
+      
+      toast({
+        title: "Éxito",
+        description: "Medicamento eliminado correctamente",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el medicamento",
+        variant: "destructive"
+      })
     }
   }
 
@@ -50,6 +126,14 @@ export default function ClinicaPage() {
       default:
         return null
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-xl">Cargando medicamentos...</p>
+      </div>
+    )
   }
 
   return (
@@ -121,8 +205,16 @@ export default function ClinicaPage() {
                     </SelectContent>
                   </Select>
                   <div className="flex space-x-4">
-                    <Button onClick={agregarMedicamento} className="flex-1 text-xl py-6 bg-black text-white hover:bg-gray-800">Guardar</Button>
-                    <Button onClick={() => setMostrarFormulario(false)} variant="outline" className="flex-1 text-xl py-6 border-2 border-black text-black hover:bg-gray-100">Cancelar</Button>
+                    <Button onClick={agregarMedicamento} className="flex-1 text-xl py-6 bg-black text-white hover:bg-gray-800">
+                      Guardar
+                    </Button>
+                    <Button 
+                      onClick={() => setMostrarFormulario(false)} 
+                      variant="outline" 
+                      className="flex-1 text-xl py-6 border-2 border-black text-black hover:bg-gray-100"
+                    >
+                      Cancelar
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -142,18 +234,30 @@ export default function ClinicaPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {medicamentos.map((medicamento) => (
-                <div key={medicamento.id} className="bg-gray-100 p-6 rounded-lg shadow-md mb-4 text-xl">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-bold text-2xl">{medicamento.name}</h3>
-                    <div className="flex items-center">
-                      {getStatusIcon(medicamento.status)}
-                      <span className="ml-2">{medicamento.status}</span>
+              {medicamentos.length === 0 ? (
+                <p className="text-center text-muted-foreground">No hay medicamentos registrados</p>
+              ) : (
+                medicamentos.map((medicamento) => (
+                  <div key={medicamento.id} className="bg-gray-100 p-6 rounded-lg shadow-md mb-4 text-xl relative">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-4 right-4 text-red-500 hover:text-red-700 hover:bg-red-100"
+                      onClick={() => eliminarMedicamento(medicamento.id)}
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-bold text-2xl">{medicamento.name}</h3>
+                      <div className="flex items-center">
+                        {getStatusIcon(medicamento.status)}
+                        <span className="ml-2">{medicamento.status}</span>
+                      </div>
                     </div>
+                    <p><strong>Cantidad:</strong> {medicamento.quantity} {medicamento.unit}</p>
                   </div>
-                  <p><strong>Cantidad:</strong> {medicamento.quantity} {medicamento.unit}</p>
-                </div>
-              ))}
+                ))
+              )}
             </CardContent>
           </Card>
         </motion.div>
