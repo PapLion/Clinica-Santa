@@ -1,12 +1,12 @@
 // app/api/members/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { membersDB } from '@/lib/db'
+import { getAllMembers, createMember, deleteMember } from '@/lib/db'
 
 export async function GET() {
   console.log('GET /api/members called')
   try {
     console.log('Attempting to fetch members from database...')
-    const members = await membersDB.all('SELECT * FROM Members')
+    const members = await getAllMembers()
     console.log('Members fetched successfully:', members)
     return NextResponse.json(members)
   } catch (error) {
@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
     
     const { name, age, joinDate, ministry, address, phone, email, notes } = body
     
-    // Validate required fields
     if (!name || !age || !joinDate || !ministry) {
       console.error('Missing required fields')
       return NextResponse.json(
@@ -36,13 +35,12 @@ export async function POST(request: NextRequest) {
     }
     
     console.log('Attempting to insert member...')
-    const result = await membersDB.run(
-      'INSERT INTO Members (name, age, joinDate, ministry, address, phone, email, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, age, joinDate, ministry, address, phone, email, notes]
-    )
+    const result = await createMember({
+      name, age, joinDate, ministry, address, phone, email, notes
+    })
     
     console.log('Member inserted successfully:', result)
-    return NextResponse.json({ id: result.lastID })
+    return NextResponse.json({ id: result.id })
   } catch (error) {
     console.error('Error creating member:', error)
     return NextResponse.json(
@@ -64,7 +62,7 @@ export async function DELETE(request: NextRequest) {
   
   try {
     console.log('Attempting to delete member with ID:', id)
-    await membersDB.run('DELETE FROM Members WHERE id = ?', [id])
+    await deleteMember(Number(id))
     console.log('Member deleted successfully')
     return NextResponse.json({ success: true })
   } catch (error) {

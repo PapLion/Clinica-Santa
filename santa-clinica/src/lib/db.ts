@@ -1,167 +1,96 @@
 // src/lib/db.ts
-import sqlite3 from 'sqlite3'
-import path from 'path'
-import fs from 'fs'
+import { sql } from '@vercel/postgres';
 
-// Database paths
-const DB_DIR = path.join(process.cwd(), 'src', 'database')
-const MEDICATIONS_DB_PATH = path.join(DB_DIR, 'medications.db')
-const MEMBERS_DB_PATH = path.join(DB_DIR, 'members.db')
-
-// Ensure database directory exists
-if (!fs.existsSync(DB_DIR)) {
-  console.log('Creating database directory:', DB_DIR)
-  fs.mkdirSync(DB_DIR, { recursive: true })
+// Types
+export interface Medication {
+  id: number;
+  name: string;
+  quantity: number;
+  unit: string;
+  status: string;
 }
 
-console.log('Database paths:', {
-  MEDICATIONS_DB_PATH,
-  MEMBERS_DB_PATH
-})
-
-// Type definitions
-type RunResult = {
-  lastID: number;
-  changes: number;
+export interface Member {
+  id: number;
+  name: string;
+  age: number;
+  joinDate: string;
+  ministry: string;
+  address: string;
+  phone: string;
+  email: string;
+  notes: string;
 }
 
-class Database {
-  private db: sqlite3.Database;
-
-  constructor(dbPath: string) {
-    this.db = new sqlite3.Database(dbPath, (err) => {
-      if (err) {
-        console.error('Error connecting to database:', err)
-      } else {
-        console.log(`Successfully connected to database: ${dbPath}`)
-      }
-    })
-  }
-
-  async all<T = any>(sql: string, params: any[] = []): Promise<T[]> {
-    return new Promise((resolve, reject) => {
-      this.db.all(sql, params, (err, rows) => {
-        if (err) {
-          console.error('Error in all():', err)
-          reject(err)
-        } else {
-          console.log(`Query successful, returned ${rows?.length ?? 0} rows`)
-          resolve(rows as T[])
-        }
-      })
-    })
-  }
-
-  async get<T = any>(sql: string, params: any[] = []): Promise<T | undefined> {
-    return new Promise((resolve, reject) => {
-      this.db.get(sql, params, (err, row) => {
-        if (err) {
-          console.error('Error in get():', err)
-          reject(err)
-        } else {
-          console.log('Query successful, returned row:', row)
-          resolve(row as T)
-        }
-      })
-    })
-  }
-
-  async run(sql: string, params: any[] = []): Promise<RunResult> {
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, params, function(err) {
-        if (err) {
-          console.error('Error in run():', err)
-          reject(err)
-        } else {
-          console.log('Query successful, changes:', this.changes)
-          resolve({ lastID: this.lastID, changes: this.changes })
-        }
-      })
-    })
-  }
-
-  async exec(sql: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.db.exec(sql, (err) => {
-        if (err) {
-          console.error('Error in exec():', err)
-          reject(err)
-        } else {
-          console.log('Exec successful')
-          resolve()
-        }
-      })
-    })
-  }
-
-  async close(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.db.close((err) => {
-        if (err) {
-          console.error('Error closing database:', err)
-          reject(err)
-        } else {
-          console.log('Database connection closed')
-          resolve()
-        }
-      })
-    })
-  }
+// Database functions for Medications
+export async function getAllMedications() {
+  const { rows } = await sql`SELECT * FROM Medications`;
+  return rows;
 }
 
-// Create database instances
-const medicationsDB = new Database(MEDICATIONS_DB_PATH)
-const membersDB = new Database(MEMBERS_DB_PATH)
+export async function createMedication(medication: Omit<Medication, 'id'>) {
+  const { rows } = await sql`
+    INSERT INTO Medications (name, quantity, unit, status)
+    VALUES (${medication.name}, ${medication.quantity}, ${medication.unit}, ${medication.status})
+    RETURNING id
+  `;
+  return rows[0];
+}
+
+export async function deleteMedication(id: number) {
+  await sql`DELETE FROM Medications WHERE id = ${id}`;
+}
+
+// Database functions for Members
+export async function getAllMembers() {
+  const { rows } = await sql`SELECT * FROM Members`;
+  return rows;
+}
+
+export async function createMember(member: Omit<Member, 'id'>) {
+  const { rows } = await sql`
+    INSERT INTO Members (name, age, joinDate, ministry, address, phone, email, notes)
+    VALUES (${member.name}, ${member.age}, ${member.joinDate}, ${member.ministry}, 
+            ${member.address}, ${member.phone}, ${member.email}, ${member.notes})
+    RETURNING id
+  `;
+  return rows[0];
+}
+
+export async function deleteMember(id: number) {
+  await sql`DELETE FROM Members WHERE id = ${id}`;
+}
 
 // Initialize tables
-async function initializeTables() {
-  console.log('Initializing database tables...')
+export async function initializeTables() {
   try {
-    // Create Medications table
-    await medicationsDB.exec(`
+    await sql`
       CREATE TABLE IF NOT EXISTS Medications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
         quantity INTEGER NOT NULL,
-        unit TEXT NOT NULL,
-        status TEXT NOT NULL
-      )
-    `)
-    console.log('Medications table initialized')
+        unit VARCHAR(50) NOT NULL,
+        status VARCHAR(50) NOT NULL
+      );
+    `;
 
-    // Create Members table
-    await membersDB.exec(`
+    await sql`
       CREATE TABLE IF NOT EXISTS Members (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
         age INTEGER,
-        joinDate TEXT,
-        ministry TEXT,
+        joinDate DATE,
+        ministry VARCHAR(100),
         address TEXT,
-        phone TEXT,
-        email TEXT,
+        phone VARCHAR(50),
+        email VARCHAR(255),
         notes TEXT
-      )
-    `)
-    console.log('Members table initialized')
+      );
+    `;
 
-    // Verify tables exist by querying them
-    await medicationsDB.get('SELECT 1 FROM Medications LIMIT 1')
-    await membersDB.get('SELECT 1 FROM Members LIMIT 1')
-    console.log('Tables verified successfully')
+    console.log('Tables initialized successfully');
   } catch (error) {
-    console.error('Error initializing tables:', error)
-    throw error
+    console.error('Error initializing tables:', error);
+    throw error;
   }
 }
-
-// Initialize tables on startup
-initializeTables()
-  .then(() => console.log('Database initialization complete'))
-  .catch(error => {
-    console.error('Failed to initialize database:', error)
-    process.exit(1)
-  })
-
-// Export database instances and types
-export { medicationsDB, membersDB, type RunResult }

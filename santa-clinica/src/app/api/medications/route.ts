@@ -1,12 +1,12 @@
 // app/api/medications/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { medicationsDB } from '@/lib/db'
+import { getAllMedications, createMedication, deleteMedication } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   console.log('GET /api/medications called')
   try {
     console.log('Attempting to fetch medications from database...')
-    const medications = await medicationsDB.all('SELECT * FROM Medications')
+    const medications = await getAllMedications()
     console.log('Medications fetched successfully:', medications)
     return NextResponse.json(medications)
   } catch (error) {
@@ -35,13 +35,10 @@ export async function POST(request: NextRequest) {
     }
     
     console.log('Attempting to insert medication...')
-    const result = await medicationsDB.run(
-      'INSERT INTO Medications (name, quantity, unit, status) VALUES (?, ?, ?, ?)',
-      [name, quantity, unit, status]
-    )
+    const result = await createMedication({ name, quantity, unit, status })
     
     console.log('Medication inserted successfully:', result)
-    return NextResponse.json({ id: result.lastID })
+    return NextResponse.json({ id: result.id })
   } catch (error) {
     console.error('Error creating medication:', error)
     return NextResponse.json(
@@ -63,7 +60,7 @@ export async function DELETE(request: NextRequest) {
   
   try {
     console.log('Attempting to delete medication with ID:', id)
-    await medicationsDB.run('DELETE FROM Medications WHERE id = ?', [id])
+    await deleteMedication(Number(id))
     console.log('Medication deleted successfully')
     return NextResponse.json({ success: true })
   } catch (error) {
